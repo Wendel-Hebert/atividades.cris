@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <title>Exercício do Pássaro</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden; /* Evita rolagem */
+            background-color: black; /* Caso a tela tenha bordas extras */
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    var config = {
+        type: Phaser.AUTO,
+        width: window.innerWidth,  // Ajusta para a largura da tela
+        height: window.innerHeight, // Ajusta para a altura da tela
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var passarinho;
+
+    function preload() {
+        //upa as imagens para o game
+        this.load.image('fundo', 'assets/fundo.webp');
+        this.load.spritesheet('passaro', 'assets/passaro.png', { frameWidth: 75, frameHeight: 75 });
+    }
+
+    function create() {
+        // Adiciona a imagem do fundo e ajusta para cobrir a tela
+        this.fundo = this.add.image(config.width / 2, config.height / 2, 'fundo');
+        this.fundo.setDisplaySize(config.width, config.height);
+
+        // Adiciona o pássaro e ajusta a posição inicial
+        passarinho = this.add.sprite(config.width * 0.1, config.height / 2, 'passaro').setScale(1.3);
+
+        // Animação do pássaro
+        this.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNumbers('passaro', { start: 0, end: 7 }),
+            frameRate: 15,
+            repeat: -1  
+        });
+
+        passarinho.anims.play('fly', true);
+    }
+
+    function update() { 
+        let limiteEsquerdo = config.width * 0.2;
+        let limiteDireito = config.width * 1.0;
+        let limiteSuperior = config.height * 0.3;
+        let limiteInferior = config.height * 0.9;
+
+        // Movimento horizontal (eixo X)
+        for (let i = 0; i < 1; i++) { 
+            if (passarinho.x <= limiteEsquerdo) {
+                passarinho.setFlip(false, false);
+                passarinho.ida = true;
+            }
+            if (passarinho.x >= limiteDireito) {
+                passarinho.setFlip(true, false);
+                passarinho.ida = false;
+            }
+            passarinho.x += passarinho.ida ? 6 : -4;
+        }
+
+        // Movimento vertical (eixo Y)
+        for (let i = 0; i < 1; i++) {
+            if (passarinho.y <= limiteSuperior) {
+                passarinho.subindo = false;
+            }
+            if (passarinho.y >= limiteInferior) {
+                passarinho.subindo = true;
+            }
+            passarinho.y += passarinho.subindo ? -4 : 4;
+        }
+    }
+
+    // Ajusta o tamanho do jogo ao redimensionar a janela
+    window.addEventListener("resize", function () {
+        let newWidth = window.innerWidth;
+        let newHeight = window.innerHeight;
+        game.scale.resize(newWidth, newHeight);
+
+        // Atualiza o fundo para cobrir toda a tela
+        game.scene.scenes[0].fundo.setDisplaySize(newWidth, newHeight);
+    });
+
+</script>
+
+</body>
+</html>
